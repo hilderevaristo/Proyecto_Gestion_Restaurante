@@ -1,0 +1,79 @@
+<nav class="navbar navbar-expand-lg fixed-top" id="mainNav" [class.scrolled]="scrolled()">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/">DonVictor</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" routerLink="/" fragment="inicio">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/" fragment="productos">Productos</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/" fragment="promociones">Promociones</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/" fragment="nosotros">Nosotros</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/" fragment="contactos">Contactos</a></li>
+      </ul>
+
+      <div class="d-flex align-items-center">
+        <!-- Carrito con badge -->
+        <button class="btn btn-outline-danger me-3 position-relative" (click)="mostrarCarrito()">
+          <i class="fas fa-shopping-cart"></i>
+          @if (carrito.cantidadTotal() > 0) {
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ carrito.cantidadTotal() }}
+          </span>
+          }
+        </button>
+
+        <!-- Usuario logueado -->
+        @if (auth.estaLogueado()) {
+        <div class="me-3 user-info">
+          <a routerLink="/perfil" class="text-decoration-none" style="color: inherit;">
+            <i class="fas fa-user-circle"></i>
+            <span class="fw-bold fw-semibold">{{ auth.usuarioActual()!.nombre }}</span>
+          </a>
+        </div>
+        <!-- 👇 AGREGAR ESTO -->
+        @if (auth.esAdmin()) {
+        <a routerLink="/admin/dashboard" class="btn btn-sm btn-danger me-2">
+          <i class="fas fa-cog me-1"></i> Admin
+        </a>
+        }
+        }
+
+        <!-- No logueado -->
+        @if (!auth.estaLogueado()) {
+        <a routerLink="/login" class="btn btn-outline-danger me-2">Ingresar</a>
+        <a routerLink="/registro" class="btn btn-danger">Registro</a>
+        }
+
+        <!-- Logout -->
+        @if (auth.estaLogueado()) {
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="confirmarCerrarSesion()">
+          Cerrar sesión
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Modal logout -->
+<div class="modal fade" id="modalCerrarSesion" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro que deseas cerrar sesión?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="cerrarSesion()">Sí, cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

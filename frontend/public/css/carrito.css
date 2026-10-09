@@ -1,0 +1,132 @@
+/* =========================================
+   Botón Flotante del Carrito
+   ========================================= */
+.btn-carrito-flotante {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #c0392b;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.2s ease, background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-carrito-flotante:hover {
+    background-color: #a93226;
+    transform: scale(1.05);
+}
+
+/* =========================================
+   Panel Lateral del Carrito (Sidebar)
+   ========================================= */
+.carrito-sidebar {
+    position: fixed;
+    top: 0;
+    right: -450px; /* Oculto fuera de la pantalla por defecto */
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    background-color: #fff;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    z-index: 1050;
+    transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Animación suave */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Esta clase es la que tu JS agrega/quita para mostrar el carrito */
+.carrito-sidebar.active {
+    right: 0;
+}
+
+/* =========================================
+   Estructura interna del Carrito
+   ========================================= */
+.carrito-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.carrito-header .btn-close {
+    font-size: 1.2rem;
+}
+
+.carrito-body {
+    padding: 20px;
+    flex-grow: 1; /* Ocupa todo el espacio restante */
+    overflow-y: auto; /* Agrega scroll si hay muchos productos */
+}
+
+.carrito-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9;
+}
+
+/* =========================================
+   Estilos del Checkout
+   ========================================= */
+.custom-input {
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: none !important;
+}
+
+.custom-input:focus {
+    border-color: #c0392b;
+}
+
+.btn-metodo-pago {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #555;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-metodo-pago.active {
+    border-color: #c0392b;
+    color: #c0392b;
+    background-color: #fdf2f1;
+}
+
+.btn-metodo-pago:hover {
+    border-color: #c0392b;
+}
+
+.btn-metodo-pago.active,
+.btn-pago-final.active {
+    border-color: #c0392b !important;
+    color: #c0392b !important;
+    background-color: #fdf2f1 !important;
+}
+
+.btn-pago-final {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #555;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-pago-final:hover {
+    border-color: #c0392b;
+}

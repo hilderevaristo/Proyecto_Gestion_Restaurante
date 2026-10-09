@@ -1,0 +1,13 @@
+@if (!sinNavbar()) {
+  <app-navbar></app-navbar>
+}
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+@if (esPublico()) {
+  <app-footer></app-footer>
+  <app-carrito></app-carrito>
+  <app-checkout></app-checkout>
+}

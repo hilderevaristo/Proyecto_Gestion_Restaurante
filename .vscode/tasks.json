@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "▶ Backend (Spring Boot)",
+      "type": "shell",
+      "command": "cd backend; .\\mvnw.cmd spring-boot:run",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev"
+      }
+    },
+    {
+      "label": "▶ Frontend (Angular)",
+      "type": "shell",
+      "command": "cd frontend; ng serve",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev"
+      }
+    },
+    {
+      "label": "🚀 Levantar TODO",
+      "dependsOn": [
+        "▶ Backend (Spring Boot)",
+        "▶ Frontend (Angular)"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

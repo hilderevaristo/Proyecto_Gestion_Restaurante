@@ -1,0 +1,71 @@
+<div class="auth-body">
+  <div class="auth-container">
+    <div class="auth-card">
+      <h2 class="text-center">Bienvenido de vuelta</h2>
+      <p class="subtitulo">Ingresa a tu cuenta para ordenar tus favoritos</p>
+
+      @if (error()) {
+        <div class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-circle me-2"></i> {{ error() }}
+        </div>
+      }
+
+      <form (ngSubmit)="login()" id="formLogin">
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input
+            type="email"
+            class="form-control"
+            placeholder="tu@email.com"
+            [(ngModel)]="email"
+            name="email"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input
+            type="password"
+            class="form-control"
+            placeholder="********"
+            [(ngModel)]="password"
+            name="password"
+            required>
+        </div>
+
+        <div class="checkbox-wrapper">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="recordarme"
+              [(ngModel)]="recordarme"
+              name="recordarme">
+            <label class="form-check-label" for="recordarme">Recordarme</label>
+          </div>
+          <a href="#" class="link-olvide" id="btnOlvidePass">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" class="btn-auth" id="btnIngresar" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner"></span>
+          } @else {
+            <span id="btnTexto">Ingresar</span>
+          }
+        </button>
+      </form>
+
+      <hr class="separator">
+
+      <div class="footer-auth">
+        <p class="text-registro">
+          ¿No tienes cuenta?
+          <a routerLink="/registro">Crear cuenta</a>
+        </p>
+        <a routerLink="/" class="link-volver">
+          <i class="fas fa-arrow-left"></i> Volver al inicio
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

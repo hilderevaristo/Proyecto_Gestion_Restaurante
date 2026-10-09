@@ -1,0 +1,109 @@
+<div id="contactos" class="container-fluid p-0">
+  <div class="row g-0 contacto-seccion align-items-stretch">
+
+    <div class="col-lg-6 d-none d-lg-block img-contacto-container">
+      <img src="/img/contacto-pollo.jpg" alt="Delicioso Pollo a la Brasa" class="img-contacto">
+    </div>
+
+    <div class="col-lg-6 p-4 p-md-5 bg-white">
+      <h1 class="fw-bold mb-0">Contáctanos</h1>
+      <h2 class="fw-bold text-danger mb-4">Ahora</h2>
+
+      <ul class="list-unstyled contacto-info mb-4 text-muted small">
+        <li class="mb-2">
+          <i class="fas fa-map-marker-alt"></i>
+          Asociación vivienda la granja, Villa María del Triunfo 15812
+        </li>
+        <li class="mb-2">
+          <i class="fas fa-phone-alt"></i> +51 985 660 797
+        </li>
+        <li class="mb-2">
+          <i class="far fa-clock"></i> Lunes - Domingo: 11:00 AM - 10:00 PM
+        </li>
+        <li class="mb-2">
+          <i class="far fa-envelope"></i> donvictor@donvictor.pe
+        </li>
+      </ul>
+
+      <div class="d-flex gap-2 mb-4">
+        <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="social-btn"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" class="social-btn"><i class="fas fa-link"></i></a>
+      </div>
+
+      <form (ngSubmit)="enviar()" class="mb-4">
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Tu nombre *" 
+              [(ngModel)]="nombre"
+              name="nombre"
+              maxlength="50"
+              required>
+          </div>
+          <div class="col-md-6">
+            <input 
+              type="tel" 
+              class="form-control" 
+              placeholder="Teléfono (opcional)" 
+              [(ngModel)]="telefono"
+              (input)="onTelefonoInput($event)"
+              name="telefono"
+              maxlength="9"
+              inputmode="numeric">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <input 
+            type="email" 
+            class="form-control" 
+            placeholder="Correo electrónico *" 
+            [(ngModel)]="email"
+            name="email"
+            required>
+        </div>
+
+        <div class="mb-4">
+          <textarea 
+            class="form-control" 
+            rows="3" 
+            placeholder="Tu mensaje... *" 
+            [(ngModel)]="mensaje"
+            name="mensaje"
+            maxlength="1000"
+            required></textarea>
+          <small class="text-muted float-end">
+            {{ mensaje.length }}/1000
+          </small>
+        </div>
+
+        <button 
+          type="submit" 
+          class="btn btn-enviar"
+          [disabled]="enviando()">
+          @if (enviando()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Enviando...
+          } @else {
+            <i class="fas fa-paper-plane me-2"></i>
+            Enviar mensaje
+          }
+        </button>
+      </form>
+
+      <div class="w-100 rounded overflow-hidden" style="height: 350px;">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d62407.95835020339!2d-76.93538537452287!3d-12.146502357478067!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105b9703636717b%3A0x208b266de0b2e42a!2sPOLLER%C3%8DA%20DON%20VICTOR!5e0!3m2!1ses-419!2spe!4v1779416880976!5m2!1ses-419!2spe"
+          width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+
+    </div>
+
+  </div>
+</div>

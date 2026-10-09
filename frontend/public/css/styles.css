@@ -1,0 +1,628 @@
+/* ========== ESTILOS GENERALES ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ========== NAVBAR CON EFECTO SCROLL ========== */
+#mainNav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 15px 0;
+    transition: all 0.4s ease-in-out;
+    background-color: transparent !important;
+    z-index: 1000;
+}
+
+/* Cuando el navbar tiene la clase "scrolled" (después del scroll) */
+#mainNav.scrolled {
+    background-color: white !important;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    animation: slideDown 0.4s ease-in-out;
+}
+
+/* Animación al bajar */
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ==========Color del nombre de usuario - mismo estilo que los menús ==========*/
+.user-name,
+.user-info span,
+.user-info i {
+    transition: color 0.3s ease;
+}
+
+/* Cuando el navbar es transparente (arriba) */
+#mainNav:not(.scrolled) .user-info span,
+#mainNav:not(.scrolled) .user-info i {
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Cuando el navbar es blanco (scroll) */
+#mainNav.scrolled .user-info span,
+#mainNav.scrolled .user-info i {
+    color: #333333 !important;
+    text-shadow: none;
+}
+/* ========== ESTILOS NAVBAR TRANSPARENTE (ARRIBA) ========== */
+#mainNav:not(.scrolled) .navbar-brand {
+    color: white !important;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+#mainNav:not(.scrolled) .nav-link {
+    color: white !important;
+    font-weight: 600;
+    margin: 0 15px !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+#mainNav:not(.scrolled) .nav-link:hover {
+    color: #ffc107 !important;
+}
+
+#mainNav:not(.scrolled) .btn-outline-danger {
+    background-color: transparent;
+    border: 1.5px solid white;
+    color: white;
+    border-radius: 25px;
+    padding: 6px 18px;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+#mainNav:not(.scrolled) .btn-outline-danger:hover {
+    background-color: white;
+    color: #dc3545;
+    transform: translateY(-2px);
+}
+
+#mainNav:not(.scrolled) .btn-danger {
+    background-color: #dc3545;
+    border: 1.5px solid #dc3545;
+    color: white;
+    border-radius: 25px;
+    padding: 6px 18px;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+#mainNav:not(.scrolled) .btn-danger:hover {
+    background-color: #bb2d3b;
+    transform: translateY(-2px);
+}
+
+/* ========== ESTILOS NAVBAR BLANCO (DESPUÉS DEL SCROLL) ========== */
+#mainNav.scrolled .navbar-brand {
+    color: #dc3545 !important;
+    font-size: 1.6rem;
+    text-shadow: none;
+}
+
+#mainNav.scrolled .nav-link {
+    color: #333333 !important;
+    font-weight: 600;
+    margin: 0 15px !important;
+    text-shadow: none;
+}
+
+#mainNav.scrolled .nav-link:hover {
+    color: #dc3545 !important;
+}
+
+#mainNav.scrolled .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+#mainNav.scrolled .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+#mainNav.scrolled .btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+/* ========== BOTÓN CERRAR SESIÓN - MISMO ESTILO QUE MENÚS ========== */
+
+/* Cuando el navbar es transparente (arriba) */
+#mainNav:not(.scrolled) .btn-outline-secondary {
+    border-color: white !important;
+    color: white !important;
+    background-color: transparent !important;
+}
+
+#mainNav:not(.scrolled) .btn-outline-secondary:hover {
+    background-color: white !important;
+    color: #dc3545 !important;
+}
+
+/* Cuando el navbar es blanco (scroll) */
+#mainNav.scrolled .btn-outline-secondary {
+    border-color: #333333 !important;
+    color: #333333 !important;
+    background-color: transparent !important;
+}
+
+#mainNav.scrolled .btn-outline-secondary:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* ========== ESTILOS COMUNES ========== */
+.navbar-brand {
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.nav-link {
+    transition: color 0.3s;
+}
+
+/* ========== BOTÓN HAMBURGUESA ========== */
+.navbar-toggler {
+    border: 2px solid white !important;
+    background-color: transparent !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    transition: all 0.3s ease;
+}
+
+.navbar-toggler:hover {
+    transform: scale(1.05);
+}
+
+/* Las 3 líneas de la hamburguesa - blancas al inicio */
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Cuando el navbar es blanco (scroll), borde y líneas negras */
+#mainNav.scrolled .navbar-toggler {
+    border-color: black !important;
+}
+
+#mainNav.scrolled .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='black' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Cuando el menú está abierto, sigue igual */
+.navbar-toggler:not(.collapsed) .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+#mainNav.scrolled .navbar-toggler:not(.collapsed) .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='black' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* ========== MENÚ DESPLEGABLE - TRANSPARENTE (SIN FONDO) ========== */
+.navbar-collapse.show .nav-link {
+    color: white !important;
+    text-align: center;
+    padding: 12px;
+    margin: 5px 0;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-collapse.show .nav-link:hover {
+    color: #ffc107 !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Botones en el menú desplegado - horizontales */
+.navbar-collapse.show .d-flex {
+    flex-direction: row !important;
+    justify-content: center !important;
+    width: 100%;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.navbar-collapse.show .btn-outline-danger {
+    border: 1.5px solid white !important;
+    color: white !important;
+    background-color: transparent !important;
+    padding: 8px 16px;
+    border-radius: 25px;
+}
+
+.navbar-collapse.show .btn-danger {
+    background-color: #dc3545 !important;
+    border: 1.5px solid #dc3545 !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 25px;
+}
+
+/* Cuando hay scroll (navbar blanco), los textos se ven oscuros */
+#mainNav.scrolled .navbar-collapse.show .nav-link {
+    color: #333333 !important;
+    text-shadow: none;
+}
+
+#mainNav.scrolled .navbar-collapse.show .nav-link:hover {
+    color: #dc3545 !important;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+#mainNav.scrolled .navbar-collapse.show .btn-outline-danger {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+/* ========== HERO SECTION ========== */
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    background-image: url('/img/Fondo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+}
+
+.hero-section .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 100%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.desde-1995 {
+    color: #ffc107;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.desde-1995 i {
+    margin-right: 8px;
+}
+
+.hero-section h1 {
+    line-height: 1.2;
+    margin-bottom: 20px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-section .lead {
+    font-size: 1.1rem;
+    max-width: 600px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.btn-ordenar {
+    background-color: #dc3545;
+    border: none;
+    border-radius: 40px;
+    padding: 12px 32px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-ordenar:hover {
+    background-color: #bb2d3b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    color: white;
+}
+
+.btn-crear {
+    background-color: transparent;
+    border: 2px solid white;
+    border-radius: 40px;
+    padding: 12px 32px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-crear:hover {
+    background-color: white;
+    color: #dc3545;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+
+
+
+
+
+
+/* ========== FOOTER ESTILO MODERNO ========== */
+.footer {
+    background-color: #1a1a1a;
+    color: #999;
+    padding: 50px 0 20px;
+    margin-top: 50px;
+}
+
+.footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #dc3545;
+    margin-bottom: 15px;
+}
+
+.footer-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: #bbb;
+}
+
+/* Redes sociales */
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.social-icon:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* Títulos del footer */
+.footer h5 {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.footer h5 i {
+    margin-right: 8px;
+    color: #dc3545;
+}
+
+/* Enlaces rápidos */
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: #999;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.footer-links a:hover {
+    color: #dc3545;
+    padding-left: 5px;
+}
+
+/* Dirección */
+.footer-address {
+    font-size: 0.9rem;
+    color: #bbb;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+.footer-address i {
+    color: #dc3545;
+    margin-right: 8px;
+}
+
+/* Copyright */
+.footer-bottom {
+    border-top: 1px solid #333;
+    margin-top: 20px;
+    padding-top: 20px;
+    font-size: 0.8rem;
+    color: #777;
+}
+/* ========== MEJORAS PARA DIRECCIÓN EN FOOTER ========== */
+.footer h5 i {
+    margin-right: 8px;
+    color: #dc3545;
+    width: 25px;
+}
+
+.footer-address {
+    margin-top: 5px;
+}
+
+.footer-address i {
+    color: #dc3545;
+    margin-right: 8px;
+}
+/* Responsive */
+@media (max-width: 768px) {
+    .footer {
+        text-align: center;
+    }
+    
+    .social-icons {
+        justify-content: center;
+    }
+    
+    .footer-links {
+        text-align: center;
+    }
+    
+    .footer-links a:hover {
+        padding-left: 0;
+    }
+}
+
+/* ========== styles de contacto ========== */
+
+.contacto-seccion {
+    min-height: calc(100vh - 76px);
+}
+
+.img-contacto {
+    width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+}
+
+.contacto-info i {
+    color: #dc3545;
+    width: 25px;
+}
+
+.social-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    color: #555;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.social-btn:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.form-control {
+    background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+
+.btn-enviar {
+    background-color: #1a1a1a;
+    color: white;
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 500;
+}
+
+.btn-enviar:hover {
+    background-color: #333;
+    color: white;
+}
+
+
+#mensajeExito {
+    animation: slideInDown 0.5s ease forwards;
+}
+
+.progress-bar-toast {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: #198754; 
+    width: 100%;
+    animation: shrinkBar 4s linear forwards; 
+}
+
+
+@keyframes shrinkBar {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+
+@keyframes slideInDown {
+    0% { transform: translateY(-15px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.fade-out-toast {
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: all 0.5s ease;
+}
+/* ========== RESPONSIVE ========== */
+@media (min-width: 992px) {
+    .navbar-nav {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .d-flex {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 991px) {
+    .navbar-nav {
+        text-align: center;
+    }
+    
+    .nav-item {
+        text-align: center;
+    }
+    
+    .d-flex {
+        justify-content: center !important;
+        width: 100%;
+    }
+    
+    .btn-outline-danger {
+        margin: 5px;
+    }
+}
+
+
+

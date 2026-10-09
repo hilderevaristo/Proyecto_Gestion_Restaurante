@@ -1,0 +1,66 @@
+<div class="auth-body">
+  <div class="auth-container">
+    <div class="auth-card">
+      <h2 class="text-center">Crear cuenta</h2>
+      <p class="subtitulo">Únete a DonVictor y pide tus favoritos</p>
+
+      @if (error()) {
+        <div class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-circle me-2"></i> {{ error() }}
+        </div>
+      }
+
+      <form (ngSubmit)="registrar()" id="formRegistro">
+        <div class="form-group">
+          <label class="form-label">Nombre completo</label>
+          <input type="text" class="form-control" placeholder="Juan Pérez"
+                 [(ngModel)]="nombre" name="nombre" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" class="form-control" placeholder="tu@email.com"
+                 [(ngModel)]="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input type="tel" class="form-control" placeholder="999 999 999"
+                 [(ngModel)]="telefono" name="telefono" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input type="password" class="form-control" placeholder="********"
+                 [(ngModel)]="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña</label>
+          <input type="password" class="form-control" placeholder="********"
+                 [(ngModel)]="password2" name="password2" required>
+        </div>
+
+        <button type="submit" class="btn-auth" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="spinner"></span>
+          } @else {
+            <span>Crear cuenta</span>
+          }
+        </button>
+      </form>
+
+      <hr class="separator">
+
+      <div class="footer-auth">
+        <p class="text-registro">
+          ¿Ya tienes cuenta?
+          <a routerLink="/login">Inicia sesión</a>
+        </p>
+        <a routerLink="/" class="link-volver">
+          <i class="fas fa-arrow-left"></i> Volver al inicio
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

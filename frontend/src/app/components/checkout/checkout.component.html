@@ -1,0 +1,243 @@
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+
+      <!-- HEADER -->
+      <div class="modal-header border-0 pb-2">
+        <h4 class="modal-title fw-bold">
+          <i></i>Finalizar pedido
+        </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body p-4">
+
+        <!-- 📦 RESUMEN DE PRODUCTOS -->
+        <div class="seccion mb-4">
+          <h6 class="seccion-titulo">
+            <i class="fas fa-box text-danger me-2"></i>Tu pedido
+          </h6>
+          <div class="productos-lista">
+            @for (item of carrito.carrito(); track item.id) {
+            <div class="producto-item">
+              <div class="producto-info">
+                <img [src]="item.imagen" [alt]="item.nombre" class="producto-img">
+                <div>
+                  <h6 class="producto-nombre">{{ item.nombre }}</h6>
+                  <small class="producto-cantidad">{{ item.cantidad }} × S/ {{ item.precio | number:'1.2-2' }}</small>
+                </div>
+              </div>
+              <span class="producto-subtotal">
+                S/ {{ (item.precio * item.cantidad) | number:'1.2-2' }}
+              </span>
+            </div>
+            }
+          </div>
+          <div class="subtotal-row">
+            <span>Subtotal</span>
+            <span>S/ {{ subtotal | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- 🚚 TIPO DE ENTREGA -->
+        <div class="seccion mb-4">
+          <h6 class="seccion-titulo">
+            <i class="fas fa-truck text-danger me-2"></i>¿Cómo lo quieres?
+          </h6>
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="opcion-card" [class.seleccionada]="tipoEntrega === 'Delivery'"
+                (click)="setTipoEntrega('Delivery')">
+                <i class="fas fa-motorcycle icono-opcion text-danger"></i>
+                <h6 class="titulo-opcion">Delivery</h6>
+                <span class="precio-opcion text-danger">+ S/ 5.00</span>
+                <span class="tiempo-opcion">30-45 min</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="opcion-card" [class.seleccionada]="tipoEntrega === 'Recojo'"
+                (click)="setTipoEntrega('Recojo')">
+                <i class="fas fa-store icono-opcion text-success"></i>
+                <h6 class="titulo-opcion">Recojo</h6>
+                <span class="precio-opcion text-success">GRATIS</span>
+                <span class="tiempo-opcion">20 min</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 📍 DATOS -->
+        <div class="seccion mb-4">
+          <h6 class="seccion-titulo">
+            <i class="fas fa-map-marker-alt text-danger me-2"></i>Datos de contacto
+          </h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Nombre completo *</label>
+              <input type="text" class="form-control" [(ngModel)]="nombreCliente" placeholder="Tu nombre">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">
+                Teléfono *
+                <span class="text-muted small float-end">{{ telefonoCliente.length }}/9</span>
+              </label>
+              <input type="tel" class="form-control" [(ngModel)]="telefonoCliente" (input)="onTelefonoInput($event)"
+                placeholder="999999999" maxlength="9" inputmode="numeric" pattern="[0-9]*">
+              @if (telefonoCliente.length > 0 && telefonoCliente.length < 9) { <small class="text-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                Faltan {{ 9 - telefonoCliente.length }} dígitos
+                </small>
+                }
+                @if (telefonoCliente.length === 9) {
+                <small class="text-success">
+                  <i class="fas fa-check-circle"></i> Teléfono válido
+                </small>
+                }
+            </div>
+            @if (tipoEntrega === 'Delivery') {
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Dirección de entrega *</label>
+              <input type="text" class="form-control" [(ngModel)]="direccionCliente"
+                placeholder="Av. / Calle / Número / Distrito">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Referencia (opcional)</label>
+              <input type="text" class="form-control" [(ngModel)]="referencia"
+                placeholder="Ej: Frente al parque, portón negro...">
+            </div>
+            } @else {
+            <div class="col-12">
+              <div class="alert alert-success mb-0 small">
+                <i class="fas fa-store me-2"></i>
+                <strong>Recojo en:</strong> Av. Asociación vivienda la granja, VMT 15812
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- 💳 MÉTODO DE PAGO -->
+        <div class="seccion mb-4">
+          <h6 class="seccion-titulo">
+            <i class="fas fa-credit-card text-danger me-2"></i>¿Cómo pagas?
+          </h6>
+          <div class="row g-3">
+            <div class="col-4">
+              <div class="opcion-pago" [class.seleccionada]="metodoPago === 'Efectivo'"
+                (click)="setMetodoPago('Efectivo')">
+                <i class="fas fa-money-bill-wave icono-pago text-success"></i>
+                <small class="texto-pago">Efectivo</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="opcion-pago" [class.seleccionada]="metodoPago === 'Yape'" (click)="setMetodoPago('Yape')">
+                <i class="fas fa-mobile-alt icono-pago text-primary"></i>
+                <small class="texto-pago">Yape / Plin</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="opcion-pago" [class.seleccionada]="metodoPago === 'Transferencia'"
+                (click)="setMetodoPago('Transferencia')">
+                <i class="fas fa-university icono-pago text-warning"></i>
+                <small class="texto-pago">Transfer.</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL YAPE -->
+          @if (metodoPago === 'Yape') {
+          <div class="panel-pago panel-yape mt-3">
+            <div class="row align-items-center g-3">
+              <div class="col-md-4 text-center">
+                <img src="/img/yape-qr.png" alt="QR Yape" class="qr-yape" onerror="this.style.display='none'">
+              </div>
+              <div class="col-md-8">
+                <h6 class="fw-bold mb-2">
+                  <i class="fas fa-mobile-alt text-primary me-2"></i>Yapea al
+                </h6>
+                <p class="mb-1 fs-5 fw-bold">{{ YAPE_NUMERO }}</p>
+                <p class="mb-3 small text-muted">Titular: {{ YAPE_TITULAR }}</p>
+                <label class="form-label small fw-semibold">N° de operación (opcional)</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="numeroOperacion"
+                  placeholder="Ej: 00123456">
+              </div>
+            </div>
+          </div>
+          }
+
+          <!-- PANEL TRANSFERENCIA -->
+          @if (metodoPago === 'Transferencia') {
+          <div class="panel-pago panel-trans mt-3">
+            <h6 class="fw-bold mb-3">
+              <i class="fas fa-university text-warning me-2"></i>Datos bancarios (BCP)
+            </h6>
+            <div class="row g-3 small">
+              <div class="col-md-6">
+                <span class="text-muted d-block">Cuenta</span>
+                <strong>{{ BCP_CUENTA }}</strong>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted d-block">CCI</span>
+                <strong>{{ BCP_CCI }}</strong>
+              </div>
+              <div class="col-12">
+                <span class="text-muted d-block">Titular</span>
+                <strong>{{ BCP_TITULAR }}</strong>
+              </div>
+              <div class="col-12 mt-3">
+                <label class="form-label small fw-semibold">N° de operación (opcional)</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="numeroOperacion"
+                  placeholder="Ej: 00123456">
+              </div>
+            </div>
+          </div>
+          }
+
+          <!-- PANEL EFECTIVO -->
+          @if (metodoPago === 'Efectivo') {
+          <div class="alert alert-info mt-3 mb-0 small">
+            <i class="fas fa-info-circle me-2"></i>
+            Pagarás en efectivo
+            @if (tipoEntrega === 'Delivery') { al recibir tu pedido }
+            @else { al recoger en el local }.
+          </div>
+          }
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer-resumen">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <small class="text-muted d-block">Total a pagar</small>
+            <h2 class="total-precio mb-0">S/ {{ totalFinal | number:'1.2-2' }}</h2>
+          </div>
+          <div class="text-end small text-muted">
+            <div>Subtotal: S/ {{ subtotal | number:'1.2-2' }}</div>
+            @if (costoDelivery > 0) {
+            <div>Delivery: S/ {{ costoDelivery | number:'1.2-2' }}</div>
+            }
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-secondary flex-fill rounded-pill py-2"
+            (click)="volverAlCarrito()">
+            <i class="fas fa-arrow-left me-2"></i>Volver
+          </button>
+          <button type="button" class="btn btn-danger flex-fill rounded-pill fw-bold py-2" [disabled]="procesando()"
+            (click)="confirmarPedido()">
+            @if (procesando()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            } @else {
+            <i class="fas fa-check-circle me-2"></i>
+            }
+            Confirmar pedido
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

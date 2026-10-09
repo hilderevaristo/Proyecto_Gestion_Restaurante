@@ -1,0 +1,52 @@
+<!-- Botón hamburguesa (solo móvil) -->
+<button class="sidebar-toggle" (click)="toggleSidebar()">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar -->
+<div class="sidebar" [class.active]="sidebarAbierto()">
+  <div class="sidebar-brand">
+    <img src="/img/Logo_admin.jpg" alt="Logo" width="50" height="50" class="logo-admin">
+    <div>
+      <span class="brand-title">DonVictor</span>
+      <small class="brand-sub">Panel Admin</small>
+    </div>
+  </div>
+
+  <ul class="sidebar-menu">
+    <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <a routerLink="/admin/dashboard" (click)="cerrarSidebar()">
+        <i class="fas fa-chart-pie"></i> Inicio
+      </a>
+    </li>
+    <li routerLinkActive="active">
+      <a routerLink="/admin/productos" (click)="cerrarSidebar()">
+        <i class="fas fa-box"></i> Productos
+      </a>
+    </li>
+    <li routerLinkActive="active">
+      <a routerLink="/admin/usuarios" (click)="cerrarSidebar()">
+        <i class="fas fa-users"></i> Usuarios
+      </a>
+    </li>
+    <li routerLinkActive="active">
+      <a routerLink="/admin/pedidos" (click)="cerrarSidebar()">
+        <i class="fas fa-shopping-cart"></i> Ordenes
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <a routerLink="/" class="btn btn-outline-light w-100 mb-2 btn-ver-sitio">
+      <i class="fas fa-external-link-alt me-2"></i> Ver sitio web
+    </a>
+    <button class="btn btn-logout w-100" (click)="cerrarSesion()">
+      <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+    </button>
+  </div>
+</div>
+
+<!-- Contenido dinámico -->
+<div class="main-content">
+  <router-outlet></router-outlet>
+</div>
