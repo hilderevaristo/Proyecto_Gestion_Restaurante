@@ -5,15 +5,16 @@ import com.example.backend.dto.ItemRequest;
 import com.example.backend.entity.Pedido;
 import com.example.backend.entity.DetallePedido;
 import com.example.backend.entity.Producto;
+import com.example.backend.entity.Usuario;                             // 👈 NUEVO
 import com.example.backend.repository.PedidoRepository;
 import com.example.backend.repository.DetallePedidoRepository;
 import com.example.backend.repository.ProductoRepository;
+import jakarta.servlet.http.HttpSession;                              // 👈 NUEVO
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,13 +32,21 @@ public class PedidoApiController {
     @Autowired
     private ProductoRepository productoRepository;
 
+    // 👇 AGREGAR HttpSession session como parámetro
     @PostMapping("/guardar")
-    public ResponseEntity<Map<String, Object>> guardarPedido(@RequestBody PedidoRequest request) {
+    public ResponseEntity<Map<String, Object>> guardarPedido(
+            @RequestBody PedidoRequest request,
+            HttpSession session) {
+
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // 1. Crear el Pedido
+            // 👇 1. Obtener el usuario de la sesión
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+            // 2. Crear el Pedido
             Pedido pedido = new Pedido();
+            pedido.setUsuario(usuario);                            // 👈 ASIGNAR
             pedido.setNombreCliente(request.getNombreCliente());
             pedido.setTelefonoCliente(request.getTelefonoCliente());
             pedido.setDireccionEntrega(request.getDireccionCliente());
@@ -45,13 +54,13 @@ public class PedidoApiController {
             pedido.setFechaPedido(LocalDateTime.now());
             pedido.setEstado("PENDIENTE");
 
-            // 2. Calcular subtotal
+            // 3. Calcular subtotal
             double subtotal = 0.0;
             for (ItemRequest item : request.getItems()) {
                 subtotal += item.getPrecioUnitario() * item.getCantidad();
             }
 
-            // 3. Calcular delivery según tipoEntrega
+            // 4. Calcular delivery según tipoEntrega
             double costoDelivery = 0.0;
             if ("Delivery".equalsIgnoreCase(request.getTipoEntrega())) {
                 costoDelivery = 5.0;
@@ -61,10 +70,10 @@ public class PedidoApiController {
             pedido.setDelivery(costoDelivery);
             pedido.setTotal(subtotal + costoDelivery);
 
-            // 4. Guardar el pedido
+            // 5. Guardar el pedido
             Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
-            // 5. Guardar detalles
+            // 6. Guardar detalles
             for (ItemRequest item : request.getItems()) {
                 DetallePedido detalle = new DetallePedido();
                 detalle.setPedido(pedidoGuardado);
