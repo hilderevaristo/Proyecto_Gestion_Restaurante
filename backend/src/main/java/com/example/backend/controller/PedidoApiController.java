@@ -5,13 +5,15 @@ import com.example.backend.dto.ItemRequest;
 import com.example.backend.entity.Pedido;
 import com.example.backend.entity.DetallePedido;
 import com.example.backend.entity.Producto;
-import com.example.backend.entity.Usuario;                             // 👈 NUEVO
+import com.example.backend.entity.Usuario;
 import com.example.backend.repository.PedidoRepository;
 import com.example.backend.repository.DetallePedidoRepository;
 import com.example.backend.repository.ProductoRepository;
-import jakarta.servlet.http.HttpSession;                              // 👈 NUEVO
+import com.example.backend.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -32,21 +34,27 @@ public class PedidoApiController {
     @Autowired
     private ProductoRepository productoRepository;
 
-    // 👇 AGREGAR HttpSession session como parámetro
-    @PostMapping("/guardar")
-    public ResponseEntity<Map<String, Object>> guardarPedido(
-            @RequestBody PedidoRequest request,
-            HttpSession session) {
+    @Autowired
+    private UsuarioRepository usuarioRepository;   // 👈 NUEVO
 
+    @PostMapping("/guardar")
+    public ResponseEntity<Map<String, Object>> guardarPedido(@RequestBody PedidoRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // 👇 1. Obtener el usuario de la sesión
-            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            // 👇 1. Obtener el usuario desde el TOKEN (no desde sesión)
+            Usuario usuario = null;
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+            if (auth != null && auth.isAuthenticated()
+                    && !"anonymousUser".equals(auth.getName())) {
+                String email = auth.getName();   // email del usuario logueado
+                usuario = usuarioRepository.findByEmail(email).orElse(null);
+            }
 
             // 2. Crear el Pedido
             Pedido pedido = new Pedido();
-            pedido.setUsuario(usuario);                            // 👈 ASIGNAR
+            pedido.setUsuario(usuario);   // Puede ser null si no está logueado
             pedido.setNombreCliente(request.getNombreCliente());
             pedido.setTelefonoCliente(request.getTelefonoCliente());
             pedido.setDireccionEntrega(request.getDireccionCliente());
@@ -60,7 +68,7 @@ public class PedidoApiController {
                 subtotal += item.getPrecioUnitario() * item.getCantidad();
             }
 
-            // 4. Calcular delivery según tipoEntrega
+            // 4. Calcular delivery
             double costoDelivery = 0.0;
             if ("Delivery".equalsIgnoreCase(request.getTipoEntrega())) {
                 costoDelivery = 5.0;

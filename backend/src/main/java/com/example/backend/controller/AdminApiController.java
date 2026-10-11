@@ -5,9 +5,7 @@ import com.example.backend.entity.Usuario;
 import com.example.backend.repository.PedidoRepository;
 import com.example.backend.repository.ProductoRepository;
 import com.example.backend.repository.UsuarioRepository;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,24 +22,14 @@ public class AdminApiController {
     @Autowired private ProductoRepository productoRepository;
     @Autowired private UsuarioRepository usuarioRepository;
 
-    // ========== VERIFICAR QUE SEA ADMIN ==========
-    private boolean esAdmin(HttpSession session) {
-        Usuario u = (Usuario) session.getAttribute("usuario");
-        return u != null && "ADMIN".equalsIgnoreCase(u.getRol());
-    }
-
-    private ResponseEntity<Map<String, Object>> noAutorizado() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", false);
-        response.put("message", "No autorizado");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
+    // ⚠️ YA NO USAMOS HttpSession
+    // Spring Security verifica el rol ADMIN en SecurityConfig
+    // (todas las rutas /api/admin/** requieren ROLE_ADMIN)
+    // Si el token no es válido o no tiene ROLE_ADMIN → 403 automático
 
     // ========== DASHBOARD ==========
     @GetMapping("/dashboard")
-    public ResponseEntity<?> dashboard(HttpSession session) {
-        if (!esAdmin(session)) return noAutorizado();
-
+    public ResponseEntity<Map<String, Object>> dashboard() {
         Map<String, Object> response = new HashMap<>();
         List<Pedido> todos = pedidoRepository.findAll();
 
@@ -68,12 +56,11 @@ public class AdminApiController {
 
     // ========== PEDIDOS ==========
     @GetMapping("/pedidos")
-    public ResponseEntity<?> listarPedidos(HttpSession session) {
-        if (!esAdmin(session)) return noAutorizado();
-
+    public ResponseEntity<Map<String, Object>> listarPedidos() {
         Map<String, Object> response = new HashMap<>();
         List<Pedido> pedidos = pedidoRepository.findAll();
 
+        // Forzar carga de detalles lazy
         for (Pedido p : pedidos) {
             if (p.getDetalles() != null) p.getDetalles().size();
         }
@@ -98,12 +85,9 @@ public class AdminApiController {
     }
 
     @PutMapping("/pedidos/{id}/estado")
-    public ResponseEntity<?> cambiarEstado(
+    public ResponseEntity<Map<String, Object>> cambiarEstado(
             @PathVariable Long id,
-            @RequestBody Map<String, String> body,
-            HttpSession session) {
-        if (!esAdmin(session)) return noAutorizado();
-
+            @RequestBody Map<String, String> body) {
         Map<String, Object> response = new HashMap<>();
         Pedido pedido = pedidoRepository.findById(id).orElse(null);
 
@@ -121,9 +105,7 @@ public class AdminApiController {
     }
 
     @DeleteMapping("/pedidos/{id}")
-    public ResponseEntity<?> eliminarPedido(@PathVariable Long id, HttpSession session) {
-        if (!esAdmin(session)) return noAutorizado();
-
+    public ResponseEntity<Map<String, Object>> eliminarPedido(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         if (!pedidoRepository.existsById(id)) {
             response.put("success", false);
@@ -138,19 +120,15 @@ public class AdminApiController {
 
     // ========== USUARIOS ==========
     @GetMapping("/usuarios")
-    public ResponseEntity<?> listarUsuarios(HttpSession session) {
-        if (!esAdmin(session)) return noAutorizado();
-
-        // Excluir admins de la lista de clientes
+    public ResponseEntity<List<Usuario>> listarUsuarios() {
         List<Usuario> usuarios = usuarioRepository.findAll();
+        // Excluir admins de la lista de clientes
         usuarios.removeIf(u -> "ADMIN".equalsIgnoreCase(u.getRol()));
         return ResponseEntity.ok(usuarios);
     }
 
     @DeleteMapping("/usuarios/{id}")
-    public ResponseEntity<?> eliminarUsuario(@PathVariable Long id, HttpSession session) {
-        if (!esAdmin(session)) return noAutorizado();
-
+    public ResponseEntity<Map<String, Object>> eliminarUsuario(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         Usuario user = usuarioRepository.findById(id).orElse(null);
 
