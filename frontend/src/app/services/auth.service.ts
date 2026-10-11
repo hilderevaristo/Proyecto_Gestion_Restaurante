@@ -5,6 +5,7 @@ import { Usuario } from '../models/usuario';
 
 interface LoginResponse {
     success: boolean;
+    token?: string;       // 👈 Token JWT
     nombre?: string;
     rol?: string;
     email?: string;
@@ -29,12 +30,15 @@ export class AuthService {
             `${this.apiUrl}/login`,
             body.toString(),
             {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                withCredentials: true
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             }
         ).pipe(
             tap(res => {
-                if (res.success) {
+                if (res.success && res.token) {
+                    // 👇 Guardar TOKEN
+                    localStorage.setItem('token', res.token);
+
+                    // 👇 Guardar datos del usuario
                     const usuario: Usuario = {
                         id: res.id ?? 0,
                         nombre: res.nombre ?? '',
@@ -52,26 +56,27 @@ export class AuthService {
 
     // ========== LOGOUT ==========
     logout(): Observable<any> {
-        return this.http.post(
-            `${this.apiUrl}/logout`,
-            {},
-            { withCredentials: true }
-        ).pipe(
+        return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
             tap(() => {
-                this.usuarioActual.set(null);
+                localStorage.removeItem('token');
                 localStorage.removeItem('usuario');
+                this.usuarioActual.set(null);
             })
         );
     }
 
     // ========== HELPERS ==========
     estaLogueado(): boolean {
-        return this.usuarioActual() !== null;
+        return this.usuarioActual() !== null && this.getToken() !== null;
     }
 
     esAdmin(): boolean {
         const u = this.usuarioActual();
         return u?.rol === 'ADMIN';
+    }
+
+    getToken(): string | null {
+        return localStorage.getItem('token');
     }
 
     private cargarDeStorage(): Usuario | null {
