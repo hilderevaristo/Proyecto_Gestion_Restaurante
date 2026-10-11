@@ -29,14 +29,13 @@ export class CheckoutComponent {
   direccionCliente = '';
   referencia = '';
 
-  tipoEntrega = 'Delivery';      // Delivery | Recojo
-  metodoPago = 'Efectivo';        // Efectivo | Yape | Transferencia
+  tipoEntrega = 'Delivery';
+  metodoPago = 'Efectivo';
   numeroOperacion = '';
 
-  // UI
   procesando = signal(false);
 
-  // Datos fijos (ajusta si cambian)
+  // Datos fijos
   COSTO_DELIVERY = 5.0;
   YAPE_NUMERO = '+51 985 660 797';
   YAPE_TITULAR = 'Victor DonVictor';
@@ -44,7 +43,9 @@ export class CheckoutComponent {
   BCP_CCI = '002-123-456789012345-12';
   BCP_TITULAR = 'Victor DonVictor';
 
-  // Total dinámico
+  // 👇 Número de WhatsApp del negocio (sin +)
+  WHATSAPP_NEGOCIO = '51928451637';
+
   get subtotal(): number {
     return this.carrito.total();
   }
@@ -57,7 +58,6 @@ export class CheckoutComponent {
     return this.subtotal + this.costoDelivery;
   }
 
-  // Cambiar tipo de entrega
   setTipoEntrega(tipo: string) {
     this.tipoEntrega = tipo;
     if (tipo === 'Recojo') {
@@ -67,114 +67,168 @@ export class CheckoutComponent {
     }
   }
 
-  // Cambiar método de pago
   setMetodoPago(metodo: string) {
     this.metodoPago = metodo;
     this.numeroOperacion = '';
   }
 
-// ========== SANITIZAR TELÉFONO (solo dígitos, máx 9) ==========
-onTelefonoInput(event: any) {
-  let valor = event.target.value.replace(/\D/g, ''); // solo números
-  if (valor.length > 9) valor = valor.slice(0, 9);   // máx 9
-  this.telefonoCliente = valor;
-  event.target.value = valor;
-}
+  onTelefonoInput(event: any) {
+    let valor = event.target.value.replace(/\D/g, '');
+    if (valor.length > 9) valor = valor.slice(0, 9);
+    this.telefonoCliente = valor;
+    event.target.value = valor;
+  }
 
-// ========== VALIDACIONES ==========
-private validarFormulario(): string | null {
-  // Teléfono
-  if (!this.telefonoCliente.trim()) {
-    return 'Por favor, ingresa tu teléfono';
+  private validarFormulario(): string | null {
+    if (!this.telefonoCliente.trim()) {
+      return 'Por favor, ingresa tu teléfono';
+    }
+    if (!/^\d{9}$/.test(this.telefonoCliente)) {
+      return 'El teléfono debe tener exactamente 9 dígitos';
+    }
+    if (!this.telefonoCliente.startsWith('9')) {
+      return 'El teléfono debe empezar con 9 (celular peruano)';
+    }
+    return null;
   }
-  if (!/^\d{9}$/.test(this.telefonoCliente)) {
-    return 'El teléfono debe tener exactamente 9 dígitos';
-  }
-  if (!this.telefonoCliente.startsWith('9')) {
-    return 'El teléfono debe empezar con 9 (celular peruano)';
-  }
-  return null;
-}
 
-  // Confirmar pedido
+  // ========== CONFIRMAR PEDIDO ==========
   confirmarPedido() {
-  // Validar
-  const errorValidacion = this.validarFormulario();
-  if (errorValidacion) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Datos incompletos',
-      text: errorValidacion,
-      confirmButtonColor: '#dc3545'
-    });
-    return;
-  }
+    const errorValidacion = this.validarFormulario();
+    if (errorValidacion) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Datos incompletos',
+        text: errorValidacion,
+        confirmButtonColor: '#dc3545'
+      });
+      return;
+    }
 
-  // Construir request
-  const request: PedidoRequest = {
-    nombreCliente: this.nombreCliente.trim(),
-    telefonoCliente: this.telefonoCliente,
-    direccionCliente: this.tipoEntrega === 'Recojo'
-      ? 'Recojo en el local'
-      : this.direccionCliente.trim(),
-    metodoPago: this.metodoPago,
-    tipoEntrega: this.tipoEntrega,
-    items: this.carrito.carrito().map(i => ({
-      productoId: i.id,
-      cantidad: i.cantidad,
-      precioUnitario: i.precio
-    }))
-  };
+    const request: PedidoRequest = {
+      nombreCliente: this.nombreCliente.trim(),
+      telefonoCliente: this.telefonoCliente,
+      direccionCliente: this.tipoEntrega === 'Recojo'
+        ? 'Recojo en el local'
+        : this.direccionCliente.trim(),
+      metodoPago: this.metodoPago,
+      tipoEntrega: this.tipoEntrega,
+      items: this.carrito.carrito().map(i => ({
+        productoId: i.id,
+        cantidad: i.cantidad,
+        precioUnitario: i.precio
+      }))
+    };
 
-  this.procesando.set(true);
+    // 👇 Guardar los items ANTES de vaciar el carrito
+    const itemsGuardados = [...this.carrito.carrito()];
 
-  this.pedidoService.guardar(request).subscribe({
-    next: (res) => {
-      this.procesando.set(false);
+    this.procesando.set(true);
 
-      if (res.success) {
-        const modalEl = document.getElementById('checkoutModal');
-        if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
+    this.pedidoService.guardar(request).subscribe({
+      next: (res) => {
+        this.procesando.set(false);
 
-        const offcanvasEl = document.getElementById('carritoOffcanvas');
-        if (offcanvasEl) bootstrap.Offcanvas.getInstance(offcanvasEl)?.hide();
+        if (res.success) {
+          // Cerrar modal y offcanvas
+          const modalEl = document.getElementById('checkoutModal');
+          if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
 
-        this.carrito.vaciar();
+          const offcanvasEl = document.getElementById('carritoOffcanvas');
+          if (offcanvasEl) bootstrap.Offcanvas.getInstance(offcanvasEl)?.hide();
 
-        Swal.fire({
-          icon: 'success',
-          title: '¡Pedido confirmado!',
-          html: `
-            <p>Tu pedido <strong>#${res.pedidoId}</strong> fue recibido.</p>
-            <p class="mb-0"><strong>Total: S/ ${res.total?.toFixed(2)}</strong></p>
-            <small class="text-muted">Te contactaremos pronto 🛵</small>
-          `,
-          confirmButtonColor: '#dc3545',
-          confirmButtonText: 'Perfecto'
-        }).then(() => {
-          this.router.navigate(['/']);
-        });
-      } else {
+          // 👇 Guardar datos para el WhatsApp ANTES de vaciar el carrito
+          const pedidoId = res.pedidoId!;
+          const totalFinal = res.total!;
+          const datosParaWA = this.construirMensajeWA(pedidoId, totalFinal, itemsGuardados);
+
+          // Vaciar carrito
+          this.carrito.vaciar();
+
+          // 👇 Modal de éxito CON botón de WhatsApp
+          Swal.fire({
+            icon: 'success',
+            title: '¡Pedido confirmado!',
+            html: `
+              <p class="mb-1">Pedido <strong>#${pedidoId}</strong> registrado.</p>
+              <p class="mb-3"><strong>Total: S/ ${totalFinal.toFixed(2)}</strong></p>
+              <p class="text-muted small mb-0">
+                <i class="fab fa-whatsapp text-success"></i>
+                Envíanos tu pedido por WhatsApp para confirmarlo
+              </p>
+            `,
+            confirmButtonColor: '#25D366',
+            confirmButtonText: '<i class="fab fa-whatsapp me-2"></i>Enviar por WhatsApp',
+            showCancelButton: true,
+            cancelButtonText: 'Cerrar',
+            cancelButtonColor: '#6c757d',
+            allowOutsideClick: false,
+          }).then((result: any) => {
+            if (result.isConfirmed) {
+              // Abrir WhatsApp con el mensaje
+              const url = `https://wa.me/${this.WHATSAPP_NEGOCIO}?text=${encodeURIComponent(datosParaWA)}`;
+              window.open(url, '_blank');
+            }
+            // Ir al home después
+            setTimeout(() => {
+              this.router.navigate(['/']);
+            }, 500);
+          });
+
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: res.message || 'No se pudo procesar el pedido',
+            confirmButtonColor: '#dc3545'
+          });
+        }
+      },
+      error: (err) => {
+        this.procesando.set(false);
+        console.error(err);
         Swal.fire({
           icon: 'error',
-          title: 'Error',
-          text: res.message || 'No se pudo procesar el pedido',
+          title: 'Error de conexión',
+          text: 'Intenta de nuevo en unos segundos',
           confirmButtonColor: '#dc3545'
         });
       }
-    },
-    error: (err) => {
-      this.procesando.set(false);
-      console.error(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error de conexión',
-        text: 'Intenta de nuevo en unos segundos',
-        confirmButtonColor: '#dc3545'
-      });
+    });
+  }
+
+  // ========== CONSTRUIR MENSAJE WHATSAPP ==========
+  private construirMensajeWA(pedidoId: number, total: number, items: any[]): string {
+    let mensaje = `Hola DonVictor 👋\n`;
+    mensaje += `Quiero confirmar mi pedido *#${pedidoId}*:\n\n`;
+
+    // Productos
+    items.forEach((item: any) => {
+      const subtotalItem = (item.precio * item.cantidad).toFixed(2);
+      mensaje += `• ${item.cantidad}x ${item.nombre} — S/ ${subtotalItem}\n`;
+    });
+
+    mensaje += `\n`;
+    mensaje += `Subtotal: S/ ${this.subtotal.toFixed(2)}\n`;
+    if (this.costoDelivery > 0) {
+      mensaje += `Delivery: S/ ${this.costoDelivery.toFixed(2)}\n`;
     }
-  });
-}
+    mensaje += `*TOTAL: S/ ${total.toFixed(2)}*\n\n`;
+
+    // Datos del cliente
+    mensaje += `*Datos de contacto:*\n`;
+    mensaje += `👤 ${this.nombreCliente}\n`;
+    mensaje += `📞 ${this.telefonoCliente}\n`;
+    mensaje += `📍 ${this.tipoEntrega === 'Recojo' ? 'Recojo en el local' : this.direccionCliente}\n`;
+    mensaje += `💳 ${this.metodoPago}\n`;
+
+    if (this.metodoPago === 'Yape' && this.numeroOperacion) {
+      mensaje += `🔢 N° Operación: ${this.numeroOperacion}\n`;
+    }
+
+    return mensaje;
+  }
+
   volverAlCarrito() {
     const modalEl = document.getElementById('checkoutModal');
     if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
