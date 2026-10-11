@@ -2,9 +2,14 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Usuario;
 import com.example.backend.repository.UsuarioRepository;
-import jakarta.servlet.http.HttpSession;
+import com.example.backend.security.CustomUserDetailsService;
+import com.example.backend.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,41 +24,58 @@ public class AuthApiController {
 
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private JwtService jwtService;
+    @Autowired private AuthenticationManager authenticationManager;
+    @Autowired private CustomUserDetailsService userDetailsService;
 
-    // ========== LOGIN ==========
+    // ========== LOGIN (devuelve JWT) ==========
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(
             @RequestParam String email,
-            @RequestParam String password,
-            HttpSession session) {
+            @RequestParam String password) {
 
         Map<String, Object> response = new HashMap<>();
-        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
 
-        if (usuario == null) {
+        try {
+            // 1. Autenticar con AuthenticationManager (verifica BCrypt)
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password)
+            );
+
+            // 2. Cargar el usuario para sacar sus datos
+            Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+            if (usuario == null) {
+                response.put("success", false);
+                response.put("errorMsg", "usuario_no_existe");
+                return ResponseEntity.ok(response);
+            }
+
+            // 3. Cargar UserDetails y generar token
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            String token = jwtService.generarToken(userDetails);
+
+            // 4. Responder con token + datos del usuario
+            response.put("success", true);
+            response.put("token", token);
+            response.put("nombre", usuario.getNombre());
+            response.put("email", usuario.getEmail());
+            response.put("rol", usuario.getRol());
+            response.put("id", usuario.getId());
+
+            return ResponseEntity.ok(response);
+
+        } catch (BadCredentialsException e) {
+            // Contraseña incorrecta
+            response.put("success", false);
+            response.put("errorMsg", "contrasena_incorrecta");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
             response.put("success", false);
             response.put("errorMsg", "usuario_no_existe");
             return ResponseEntity.ok(response);
         }
-
-        // 👇 BCrypt: compara el password escrito con el hash de la BD
-        if (!passwordEncoder.matches(password, usuario.getPassword())) {
-            response.put("success", false);
-            response.put("errorMsg", "contrasena_incorrecta");
-            return ResponseEntity.ok(response);
-        }
-
-        if (usuario.getDirecciones() != null) {
-            usuario.getDirecciones().size();
-        }
-        session.setAttribute("usuario", usuario);
-
-        response.put("success", true);
-        response.put("nombre", usuario.getNombre());
-        response.put("rol", usuario.getRol());
-        response.put("email", usuario.getEmail());
-        response.put("id", usuario.getId());
-        return ResponseEntity.ok(response);
     }
 
     // ========== REGISTRO ==========
@@ -76,12 +98,10 @@ public class AuthApiController {
         nuevo.setNombre(nombre);
         nuevo.setEmail(email);
         nuevo.setTelefono(telefono);
-
-        // 👇 BCrypt: encripta el password antes de guardar
-        nuevo.setPassword(passwordEncoder.encode(password));
-
+        nuevo.setPassword(passwordEncoder.encode(password)); // BCrypt
         nuevo.setRol("USER");
         nuevo.setFechaRegistro(LocalDateTime.now());
+
         usuarioRepository.save(nuevo);
 
         response.put("success", true);
@@ -91,30 +111,47 @@ public class AuthApiController {
 
     // ========== LOGOUT ==========
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
-        session.invalidate();
+    public ResponseEntity<Map<String, Object>> logout() {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
+        response.put("message", "Sesión cerrada");
         return ResponseEntity.ok(response);
+        // Con JWT, el logout es simple: el cliente borra el token
     }
 
-    // ========== ME ==========
+    // ========== ME (usuario actual desde el token) ==========
     @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> me(HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
+    public ResponseEntity<Map<String, Object>> me(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
-        if (usuario == null) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.put("success", false);
             return ResponseEntity.ok(response);
         }
 
-        response.put("success", true);
-        response.put("id", usuario.getId());
-        response.put("nombre", usuario.getNombre());
-        response.put("email", usuario.getEmail());
-        response.put("telefono", usuario.getTelefono());
-        response.put("rol", usuario.getRol());
-        return ResponseEntity.ok(response);
+        try {
+            String token = authHeader.substring(7);
+            String email = jwtService.extraerUsername(token);
+            Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+
+            if (usuario == null) {
+                response.put("success", false);
+                return ResponseEntity.ok(response);
+            }
+
+            response.put("success", true);
+            response.put("id", usuario.getId());
+            response.put("nombre", usuario.getNombre());
+            response.put("email", usuario.getEmail());
+            response.put("telefono", usuario.getTelefono());
+            response.put("rol", usuario.getRol());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            return ResponseEntity.ok(response);
+        }
     }
 }
