@@ -39,6 +39,6 @@ export class App {
   }
 
   esRutaAuth(): boolean {
-    return this.url().startsWith('/login') || this.url().startsWith('/registro');
+    return this.url().startsWith('/login') || this.url().startsWith('/registro') || this.url().startsWith('/admin');
   }
 }

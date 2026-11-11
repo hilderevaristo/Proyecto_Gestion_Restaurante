@@ -2,9 +2,14 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Pedido;
 import com.example.backend.entity.Usuario;
+import com.example.backend.repository.DetallePedidoRepository;
+import com.example.backend.repository.DireccionRepository;
 import com.example.backend.repository.PedidoRepository;
 import com.example.backend.repository.ProductoRepository;
 import com.example.backend.repository.UsuarioRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +26,8 @@ public class AdminApiController {
     @Autowired private PedidoRepository pedidoRepository;
     @Autowired private ProductoRepository productoRepository;
     @Autowired private UsuarioRepository usuarioRepository;
+     @Autowired private DetallePedidoRepository detallePedidoRepository;   // 👈 NUEVO
+    @Autowired private DireccionRepository direccionRepository; 
 
     // ⚠️ YA NO USAMOS HttpSession
     // Spring Security verifica el rol ADMIN en SecurityConfig
@@ -119,15 +126,16 @@ public class AdminApiController {
     }
 
     // ========== USUARIOS ==========
+   // ========== USUARIOS ==========
     @GetMapping("/usuarios")
     public ResponseEntity<List<Usuario>> listarUsuarios() {
         List<Usuario> usuarios = usuarioRepository.findAll();
-        // Excluir admins de la lista de clientes
         usuarios.removeIf(u -> "ADMIN".equalsIgnoreCase(u.getRol()));
         return ResponseEntity.ok(usuarios);
     }
 
     @DeleteMapping("/usuarios/{id}")
+    @Transactional   // 👈 IMPORTANTE
     public ResponseEntity<Map<String, Object>> eliminarUsuario(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         Usuario user = usuarioRepository.findById(id).orElse(null);
@@ -144,9 +152,39 @@ public class AdminApiController {
             return ResponseEntity.ok(response);
         }
 
-        usuarioRepository.delete(user);
-        response.put("success", true);
-        response.put("message", "Usuario eliminado");
-        return ResponseEntity.ok(response);
+        try {
+            // 1. Borrar pedidos del usuario (y sus detalles)
+            List<Pedido> pedidos = pedidoRepository.findAll();
+            for (Pedido p : pedidos) {
+                if (p.getUsuario() != null && p.getUsuario().getId().equals(id)) {
+                    // Borrar detalles del pedido
+                    if (p.getDetalles() != null && !p.getDetalles().isEmpty()) {
+                        detallePedidoRepository.deleteAll(p.getDetalles());
+                    }
+                    // Borrar el pedido
+                    pedidoRepository.delete(p);
+                }
+            }
+
+            // 2. Borrar direcciones del usuario
+            direccionRepository.deleteAll(
+                direccionRepository.findAll().stream()
+                    .filter(d -> d.getUsuario() != null && d.getUsuario().getId().equals(id))
+                    .toList()
+            );
+
+            // 3. Borrar el usuario
+            usuarioRepository.delete(user);
+
+            response.put("success", true);
+            response.put("message", "Usuario eliminado junto con sus pedidos y direcciones");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error al eliminar: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 }
