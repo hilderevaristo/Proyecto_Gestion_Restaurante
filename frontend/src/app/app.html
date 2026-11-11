@@ -6,7 +6,7 @@
   <router-outlet></router-outlet>
 </main>
 
-@if (esPublico()) {
+@if (!esRutaAuth()) {
   <app-footer></app-footer>
   <app-carrito></app-carrito>
   <app-checkout></app-checkout>

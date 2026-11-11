@@ -1,0 +1,65 @@
+/* ========== VALIDACIÓN ========== */
+.form-control.is-invalid {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+.form-control.is-valid {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+}
+
+.text-danger {
+  color: #dc3545;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.text-success {
+  color: #198754;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.input-password-wrapper {
+  position: relative;
+}
+
+.input-password-wrapper .form-control {
+  padding-right: 45px;
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #8b7355;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.btn-toggle-password:hover {
+  color: #dc3545;
+}
+
+.form-control.is-valid {
+  border-color: #198754;
+  background-image: none !important;   /* 👈 SIN ícono */
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+  background-image: none !important;   /* 👈 SIN ícono */
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+/* El ojito */
+.input-password-wrapper .form-control {
+  padding-right: 45px !important;   /* 👈 Espacio para el ojito */
+}

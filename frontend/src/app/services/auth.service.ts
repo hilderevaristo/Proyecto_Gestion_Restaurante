@@ -2,6 +2,7 @@ import { inject, Service, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Usuario } from '../models/usuario';
+import { CarritoService } from './carrito.service';
 
 interface LoginResponse {
     success: boolean;
@@ -16,9 +17,17 @@ interface LoginResponse {
 @Service()
 export class AuthService {
     private http = inject(HttpClient);
+    private carrito = inject(CarritoService); 
     private apiUrl = '/api/auth';
 
     usuarioActual = signal<Usuario | null>(this.cargarDeStorage());
+
+      constructor() {   // 👈 CAMBIO 2
+        const usuario = this.usuarioActual();
+        if (usuario) {
+            this.carrito.cargarParaUsuario(usuario.id);
+        }
+    }
 
     // ========== LOGIN ==========
     login(email: string, password: string): Observable<LoginResponse> {
@@ -49,6 +58,8 @@ export class AuthService {
                     };
                     this.usuarioActual.set(usuario);
                     localStorage.setItem('usuario', JSON.stringify(usuario));
+
+                    this.carrito.cargarParaUsuario(usuario.id);
                 }
             })
         );
@@ -61,6 +72,7 @@ export class AuthService {
                 localStorage.removeItem('token');
                 localStorage.removeItem('usuario');
                 this.usuarioActual.set(null);
+                this.carrito.limpiar(); 
             })
         );
     }

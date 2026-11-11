@@ -38,7 +38,7 @@ export class App {
         || u.startsWith('/admin');
   }
 
-  esPublico(): boolean {
-    return !this.url().startsWith('/admin');
+  esRutaAuth(): boolean {
+    return this.url().startsWith('/login') || this.url().startsWith('/registro');
   }
 }

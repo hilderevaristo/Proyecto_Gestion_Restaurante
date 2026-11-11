@@ -4,53 +4,72 @@
       <h2 class="text-center">Bienvenido de vuelta</h2>
       <p class="subtitulo">Ingresa a tu cuenta para ordenar tus favoritos</p>
 
+      <!-- Error general (del backend) -->
       @if (error()) {
-        <div class="alert alert-danger" role="alert">
-          <i class="fas fa-exclamation-circle me-2"></i> {{ error() }}
-        </div>
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> {{ error() }}
+      </div>
       }
 
-      <form (ngSubmit)="login()" id="formLogin">
+      <form (ngSubmit)="login()" id="formLogin" novalidate>
+
+        <!-- ========== EMAIL ========== -->
         <div class="form-group">
           <label class="form-label">Correo electrónico</label>
-          <input
-            type="email"
-            class="form-control"
-            placeholder="tu@email.com"
-            [(ngModel)]="email"
-            name="email"
-            required>
+          <input type="email" class="form-control" [class.is-invalid]="errorEmail()"
+            [class.is-valid]="email.length > 0 && !errorEmail()" placeholder="tu@email.com" [(ngModel)]="email"
+            (ngModelChange)="onEmailInput()" name="email" autocomplete="email">
+
+          <!-- Mensaje de error (en vivo) -->
+          @if (errorEmail()) {
+          <small class="text-danger d-block mt-1">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ errorEmail() }}
+          </small>
+          }
+
+          <!-- Mensaje de OK -->
+          @if (email.length > 0 && !errorEmail()) {
+          <small class="text-success d-block mt-1">
+            <i class="fas fa-check-circle me-1"></i>Correo válido
+          </small>
+          }
         </div>
 
+        <!-- ========== PASSWORD ========== -->
         <div class="form-group">
           <label class="form-label">Contraseña</label>
-          <input
-            type="password"
-            class="form-control"
-            placeholder="********"
-            [(ngModel)]="password"
-            name="password"
-            required>
+          <div class="input-password-wrapper">
+            <input [type]="mostrarPassword() ? 'text' : 'password'" class="form-control"
+              [class.is-invalid]="errorPassword()" [class.is-valid]="password.length >= 4 && !errorPassword()"
+              placeholder="********" [(ngModel)]="password" (ngModelChange)="onPasswordInput()" name="password"
+              autocomplete="current-password">
+            <button type="button" class="btn-toggle-password" (click)="togglePassword()"
+              [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <i class="fas" [class.fa-eye]="!mostrarPassword()" [class.fa-eye-slash]="mostrarPassword()"></i>
+            </button>
+          </div>
+          @if (errorPassword()) {
+          <small class="text-danger d-block mt-1">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ errorPassword() }}
+          </small>
+          }
         </div>
 
+        <!-- ========== RECORDARME ========== -->
         <div class="checkbox-wrapper">
           <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="recordarme"
-              [(ngModel)]="recordarme"
-              name="recordarme">
+            <input type="checkbox" class="form-check-input" id="recordarme" [(ngModel)]="recordarme" name="recordarme">
             <label class="form-check-label" for="recordarme">Recordarme</label>
           </div>
           <a href="#" class="link-olvide" id="btnOlvidePass">¿Olvidaste tu contraseña?</a>
         </div>
 
+        <!-- ========== BOTÓN ========== -->
         <button type="submit" class="btn-auth" id="btnIngresar" [disabled]="cargando()">
           @if (cargando()) {
-            <span class="spinner"></span>
+          <span class="spinner"></span>
           } @else {
-            <span id="btnTexto">Ingresar</span>
+          <span id="btnTexto">Ingresar</span>
           }
         </button>
       </form>

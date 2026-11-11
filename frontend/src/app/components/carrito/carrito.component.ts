@@ -17,16 +17,18 @@ declare var bootstrap: any;
 })
 export class CarritoComponent {
   carrito = inject(CarritoService);
-  auth = inject(AuthService);            
-  private router = inject(Router); 
-  
+  auth = inject(AuthService);
+  private router = inject(Router);
+
 
   cambiar(id: number, cantidad: number) {
-    this.carrito.cambiarCantidad(id, cantidad);
+    const userId = this.auth.usuarioActual()?.id ?? null;
+    this.carrito.cambiarCantidad(id, cantidad, userId);
   }
 
   quitar(id: number) {
-    this.carrito.quitar(id);
+    const userId = this.auth.usuarioActual()?.id ?? null;
+    this.carrito.quitar(id, userId);
   }
 
   finalizarCompra() {

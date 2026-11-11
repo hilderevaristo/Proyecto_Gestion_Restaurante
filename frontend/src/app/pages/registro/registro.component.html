@@ -5,47 +5,128 @@
       <p class="subtitulo">Únete a DonVictor y pide tus favoritos</p>
 
       @if (error()) {
-        <div class="alert alert-danger" role="alert">
-          <i class="fas fa-exclamation-circle me-2"></i> {{ error() }}
-        </div>
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> {{ error() }}
+      </div>
       }
 
-      <form (ngSubmit)="registrar()" id="formRegistro">
+      <form (ngSubmit)="registrar()" id="formRegistro" novalidate>
+
+        <!-- ========== NOMBRE ========== -->
         <div class="form-group">
           <label class="form-label">Nombre completo</label>
-          <input type="text" class="form-control" placeholder="Juan Pérez"
-                 [(ngModel)]="nombre" name="nombre" required>
+          <input type="text" class="form-control" [class.is-invalid]="errorNombre()"
+            [class.is-valid]="nombre.length >= 3 && !errorNombre()" placeholder="Juan Pérez" [(ngModel)]="nombre"
+            (ngModelChange)="onNombreInput()" name="nombre">
+          @if (errorNombre()) {
+          <small class="text-danger d-block mt-1">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ errorNombre() }}
+          </small>
+          }
         </div>
 
+        <!-- ========== EMAIL ========== -->
         <div class="form-group">
           <label class="form-label">Correo electrónico</label>
-          <input type="email" class="form-control" placeholder="tu@email.com"
-                 [(ngModel)]="email" name="email" required>
+          <input type="email" class="form-control" [class.is-invalid]="errorEmail()"
+            [class.is-valid]="email.length > 0 && !errorEmail()" placeholder="tu@email.com" [(ngModel)]="email"
+            (ngModelChange)="onEmailInput()" name="email">
+          @if (errorEmail()) {
+          <small class="text-danger d-block mt-1">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ errorEmail() }}
+          </small>
+          }
         </div>
 
+        <!-- ========== TELÉFONO ========== -->
         <div class="form-group">
-          <label class="form-label">Teléfono</label>
-          <input type="tel" class="form-control" placeholder="999 999 999"
-                 [(ngModel)]="telefono" name="telefono" required>
+          <label class="form-label">
+            Teléfono celular
+            <span class="text-muted small float-end">{{ telefono.length }}/9</span>
+          </label>
+          <input type="tel" class="form-control" [class.is-invalid]="errorTelefono()"
+            [class.is-valid]="telefono.length === 9 && !errorTelefono()" placeholder="999999999" [(ngModel)]="telefono"
+            (input)="onTelefonoInput($event)" maxlength="9" inputmode="numeric" name="telefono">
+          @if (errorTelefono()) {
+          <small class="text-danger d-block mt-1">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ errorTelefono() }}
+          </small>
+          }
+          @if (telefono.length === 9 && !errorTelefono()) {
+          <small class="text-success d-block mt-1">
+            <i class="fas fa-check-circle me-1"></i>Teléfono válido
+          </small>
+          }
         </div>
 
+        <!-- ========== PASSWORD ========== -->
         <div class="form-group">
           <label class="form-label">Contraseña</label>
-          <input type="password" class="form-control" placeholder="********"
-                 [(ngModel)]="password" name="password" required>
+          <div class="input-password-wrapper">
+            <input [type]="mostrarPassword() ? 'text' : 'password'" class="form-control"
+              [class.is-invalid]="errorPassword()"
+              [class.is-valid]="password.length >= 6 && tieneMayuscula() && tieneNumero() && tieneEspecial()"
+              placeholder="Mínimo 6 caracteres" [(ngModel)]="password" (ngModelChange)="onPasswordInput()"
+              name="password">
+            <button type="button" class="btn-toggle-password" (click)="togglePassword()"
+              [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <i class="fas" [class.fa-eye]="!mostrarPassword()" [class.fa-eye-slash]="mostrarPassword()"></i>
+            </button>
+          </div>
+
+          @if (password.length > 0) {
+          <div class="requisitos mt-2">
+            <small class="d-block" [class.text-success]="tieneMinimo()" [class.text-muted]="!tieneMinimo()">
+              <i class="fas" [class.fa-check-circle]="tieneMinimo()" [class.fa-circle]="!tieneMinimo()"></i>
+              Mínimo 6 caracteres
+            </small>
+            <small class="d-block" [class.text-success]="tieneMayuscula()" [class.text-muted]="!tieneMayuscula()">
+              <i class="fas" [class.fa-check-circle]="tieneMayuscula()" [class.fa-circle]="!tieneMayuscula()"></i>
+              Al menos una mayúscula (A-Z)
+            </small>
+            <small class="d-block" [class.text-success]="tieneNumero()" [class.text-muted]="!tieneNumero()">
+              <i class="fas" [class.fa-check-circle]="tieneNumero()" [class.fa-circle]="!tieneNumero()"></i>
+              Al menos un número (0-9)
+            </small>
+            <small class="d-block" [class.text-success]="tieneEspecial()" [class.text-muted]="!tieneEspecial()">
+              <i class="fas" [class.fa-check-circle]="tieneEspecial()" [class.fa-circle]="!tieneEspecial()"></i>
+              Al menos un carácter especial (@, #, $, !, %, etc.)
+            </small>
+          </div>
+          }
         </div>
 
+        <!-- ========== CONFIRMAR PASSWORD ========== -->
         <div class="form-group">
           <label class="form-label">Confirmar contraseña</label>
-          <input type="password" class="form-control" placeholder="********"
-                 [(ngModel)]="password2" name="password2" required>
+          <div class="input-password-wrapper">
+            <input [type]="mostrarPassword2() ? 'text' : 'password'" class="form-control"
+              [class.is-invalid]="errorPassword2()" [class.is-valid]="password2.length > 0 && !errorPassword2()"
+              placeholder="Repite la contraseña" [(ngModel)]="password2" (ngModelChange)="onPassword2Input()"
+              name="password2">
+            <button type="button" class="btn-toggle-password" (click)="togglePassword2()"
+              [attr.aria-label]="mostrarPassword2() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <i class="fas" [class.fa-eye]="!mostrarPassword2()" [class.fa-eye-slash]="mostrarPassword2()"></i>
+            </button>
+          </div>
+
+          @if (errorPassword2()) {
+          <small class="text-danger d-block mt-1">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ errorPassword2() }}
+          </small>
+          }
+          @if (password2.length > 0 && !errorPassword2()) {
+          <small class="text-success d-block mt-1">
+            <i class="fas fa-check-circle me-1"></i>Las contraseñas coinciden
+          </small>
+          }
         </div>
 
         <button type="submit" class="btn-auth" [disabled]="cargando()">
           @if (cargando()) {
-            <span class="spinner"></span>
+          <span class="spinner"></span>
           } @else {
-            <span>Crear cuenta</span>
+          <span>Crear cuenta</span>
           }
         </button>
       </form>

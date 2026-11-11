@@ -143,7 +143,7 @@ export class CheckoutComponent {
           const datosParaWA = this.construirMensajeWA(pedidoId, totalFinal, itemsGuardados);
 
           // Vaciar carrito
-          this.carrito.vaciar();
+          this.carrito.vaciar(this.auth.usuarioActual()?.id ?? null);
 
           // 👇 Modal de éxito CON botón de WhatsApp
           Swal.fire({

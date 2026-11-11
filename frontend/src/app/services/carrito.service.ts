@@ -1,9 +1,9 @@
-import { computed, Service, signal } from '@angular/core';
+import { Service, signal, computed } from '@angular/core';
 import { ItemCarrito } from '../models/item-carrito';
 
 @Service()
 export class CarritoService {
-     private items = signal<ItemCarrito[]>(this.cargarDeStorage());
+  private items = signal<ItemCarrito[]>([]);
 
   readonly carrito = this.items.asReadonly();
 
@@ -15,7 +15,27 @@ export class CarritoService {
     this.items().reduce((s, i) => s + i.cantidad, 0)
   );
 
-  agregar(item: Omit<ItemCarrito, 'cantidad'>) {
+  // ========== CARGAR para un usuario específico ==========
+  cargarParaUsuario(userId: number) {
+    const key = `carrito_user_${userId}`;
+    const data = localStorage.getItem(key);
+    this.items.set(data ? JSON.parse(data) : []);
+  }
+
+  // ========== LIMPIAR (al cerrar sesión) ==========
+  limpiar() {
+    this.items.set([]);
+  }
+
+  // ========== GUARDAR (necesita el userId) ==========
+  private guardarParaUsuario(userId: number | null) {
+    if (userId === null) return;
+    const key = `carrito_user_${userId}`;
+    localStorage.setItem(key, JSON.stringify(this.items()));
+  }
+
+  // ========== MÉTODOS PÚBLICOS ==========
+  agregar(item: Omit<ItemCarrito, 'cantidad'>, userId: number | null) {
     const actual = [...this.items()];
     const existe = actual.find(i => i.id === item.id);
     if (existe) {
@@ -24,33 +44,24 @@ export class CarritoService {
       actual.push({ ...item, cantidad: 1 });
     }
     this.items.set(actual);
-    this.guardarEnStorage();
+    this.guardarParaUsuario(userId);
   }
 
-  quitar(id: number) {
+  quitar(id: number, userId: number | null) {
     this.items.set(this.items().filter(i => i.id !== id));
-    this.guardarEnStorage();
+    this.guardarParaUsuario(userId);
   }
 
-  cambiarCantidad(id: number, cantidad: number) {
-    if (cantidad <= 0) return this.quitar(id);
+  cambiarCantidad(id: number, cantidad: number, userId: number | null) {
+    if (cantidad <= 0) return this.quitar(id, userId);
     this.items.set(
       this.items().map(i => (i.id === id ? { ...i, cantidad } : i))
     );
-    this.guardarEnStorage();
+    this.guardarParaUsuario(userId);
   }
 
-  vaciar() {
+  vaciar(userId: number | null) {
     this.items.set([]);
-    this.guardarEnStorage();
-  }
-
-  private guardarEnStorage() {
-    localStorage.setItem('carrito', JSON.stringify(this.items()));
-  }
-
-  private cargarDeStorage(): ItemCarrito[] {
-    const data = localStorage.getItem('carrito');
-    return data ? JSON.parse(data) : [];
+    this.guardarParaUsuario(userId);
   }
 }

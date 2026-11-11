@@ -64,11 +64,12 @@ export class ProductosComponent implements OnInit{
   }
 
   agregarAlCarrito(p: Producto) {
+    const userId = this.auth.usuarioActual()?.id ?? null; 
     this.carrito.agregar({
       id: p.id,
       nombre: p.nombre,
       precio: p.precio,
       imagen: this.getImagen(p)
-    });
+    } , userId);
   }
 }
