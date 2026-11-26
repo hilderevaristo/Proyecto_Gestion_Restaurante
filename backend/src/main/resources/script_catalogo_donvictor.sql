@@ -1,4 +1,5 @@
-INSERT INTO productos (nombre, precio, imagen_url, categoria, descripcion) VALUES
+
+/*INSERT INTO productos (nombre, precio, imagen_url, categoria, descripcion) VALUES
 ('Promo Familiar', 79.00, 'secciones/promociones/Promocion1.png', 'Promociones', '1 Pollo + Papas fritas + Ensalada + Tequeños'),
 ('Promo Gaseosa', 89.00, 'secciones/promociones/Promocion2.png', 'Promociones', '1 Pollo + Papas + Ensalada + Gaseosa 1L'),
 ('Promo Peruana', 92.00, 'secciones/promociones/Promocion3.png', 'Promociones', '1 Pollo + Papas + Ensalada + Chicha 1.5L'),
@@ -31,4 +32,4 @@ INSERT INTO productos (nombre, precio, imagen_url, categoria, descripcion) VALUE
 ('Gaseosa 500 ml', 5.00, 'secciones/Bebidas/gaseosas_personales.png', 'Bebidas', 'Gaseosa personal.'),
 ('Gaseosa 1 L', 9.00, 'secciones/Bebidas/gaseosa_1L.png', 'Bebidas', 'Gaseosa 1 Litro.'),
 ('Gaseosa 1.5 L', 12.00, 'secciones/Bebidas/Gaseosa1.5L.png', 'Bebidas', 'Gaseosa 1.5 Litros.'),
-('Chicha Morada 1.5 L', 14.00, 'secciones/Bebidas/chicha_morada_1.5L.png', 'Bebidas', 'Chicha artesanal.');
+('Chicha Morada 1.5 L', 14.00, 'secciones/Bebidas/chicha_morada_1.5L.png', 'Bebidas', 'Chicha artesanal.'); */
