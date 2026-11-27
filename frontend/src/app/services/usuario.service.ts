@@ -7,7 +7,7 @@ import { Direccion } from '../models/direccion';
 @Service()
 export class UsuarioService {
      private http = inject(HttpClient);
-  private apiUrl = '/api/perfil';
+  private apiUrl = 'https://proyecto-gestion-restaurante.onrender.com/api/perfil';
 
   obtenerPerfil(): Observable<Usuario> {
     return this.http.get<Usuario>(this.apiUrl, { withCredentials: true });

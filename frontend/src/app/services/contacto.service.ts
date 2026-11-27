@@ -11,7 +11,7 @@ export interface ContactoResponse {
 @Service()
 export class ContactoService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/contacto';
+  private apiUrl = 'https://proyecto-gestion-restaurante.onrender.com/api/contacto';
 
   enviar(data: Contacto): Observable<ContactoResponse> {
     return this.http.post<ContactoResponse>(this.apiUrl, data);

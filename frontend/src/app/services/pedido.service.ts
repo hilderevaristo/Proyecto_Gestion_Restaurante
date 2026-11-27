@@ -13,7 +13,7 @@ export interface PedidoResponse {
 @Service()
 export class PedidoService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/pedidos';
+  private apiUrl = 'https://proyecto-gestion-restaurante.onrender.com/api/pedidos';
 
   guardar(pedido: PedidoRequest): Observable<PedidoResponse> {
     return this.http.post<PedidoResponse>(`${this.apiUrl}/guardar`, pedido);
