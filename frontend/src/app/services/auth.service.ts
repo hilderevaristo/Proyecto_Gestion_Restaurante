@@ -22,7 +22,7 @@ interface LoginResponse {
 export class AuthService {
     private http = inject(HttpClient);
     private carrito = inject(CarritoService);
-    private apiUrl = '/api/auth';
+    private apiUrl = 'https://proyecto-gestion-restaurante.onrender.com/api/auth';
 
     usuarioActual = signal<Usuario | null>(this.cargarDeStorage());
 
