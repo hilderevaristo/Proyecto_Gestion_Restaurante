@@ -26,7 +26,7 @@ export interface ApiResponse {
 @Service()
 export class AdminService {
     private http = inject(HttpClient);
-  private apiUrl = '/api/admin';
+  private apiUrl = 'https://proyecto-gestion-restaurante.onrender.com/api/admin';
 
   // ========== DASHBOARD ==========
   getDashboard(): Observable<DashboardData> {
