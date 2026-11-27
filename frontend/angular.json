@@ -1,3 +1,4 @@
+
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
@@ -7,7 +8,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "Prueba-Angular": {
+    "frontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -38,9 +39,8 @@
               "public/css/estilos-menu.css",
               "public/css/carrito.css",
               "public/css/styles.css",
-              "public/css/validacionLogin.css", 
-              
-              "src/styles.css"            
+              "public/css/validacionLogin.css",
+              "src/styles.css"
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
@@ -78,10 +78,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "Prueba-Angular:build:production"
+              "buildTarget": "frontend:build:production"
             },
             "development": {
-              "buildTarget": "Prueba-Angular:build:development"
+              "buildTarget": "frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
