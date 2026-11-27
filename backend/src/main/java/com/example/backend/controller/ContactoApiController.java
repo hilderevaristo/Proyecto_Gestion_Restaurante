@@ -12,7 +12,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/contacto")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+@CrossOrigin(
+    origins = {
+        "http://localhost:4200",
+        "https://frontend-5qvn.onrender.com"
+    },
+    allowCredentials = "true"
+)
 public class ContactoApiController {
 
     @Autowired

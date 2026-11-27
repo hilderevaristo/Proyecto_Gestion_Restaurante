@@ -10,7 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+@CrossOrigin(
+    origins = {
+        "http://localhost:4200",
+        "https://frontend-5qvn.onrender.com"
+    },
+    allowCredentials = "true"
+)
 public class ProductoApiController {
 
     @Autowired
