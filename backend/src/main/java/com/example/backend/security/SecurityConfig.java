@@ -39,49 +39,46 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Desactivar CSRF (no lo necesitamos con JWT)
-            .csrf(AbstractHttpConfigurer::disable)
+                // 1. Desactivar CSRF (no lo necesitamos con JWT)
+                .csrf(AbstractHttpConfigurer::disable)
 
-            // 2. Configurar CORS
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // 2. Configurar CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-            // 3. Definir rutas públicas y privadas
-            .authorizeHttpRequests(auth -> auth
-                // 🔓 RUTAS PÚBLICAS
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/pedidos/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/contacto/**").permitAll()
-                .requestMatchers("/error").permitAll()
+                // 3. Definir rutas públicas y privadas
+                .authorizeHttpRequests(auth -> auth
+                        // 🔓 RUTAS PÚBLICAS
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/pedidos/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/contacto/**").permitAll()
+                        .requestMatchers("/error").permitAll()
 
-                // 🔒 RUTAS PROTEGIDAS (solo ADMIN)
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // 🔒 RUTAS PROTEGIDAS (solo ADMIN)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                // 🔒 Cualquier otra ruta requiere autenticación
-                .anyRequest().authenticated()
-            )
+                        // 🔒 Cualquier otra ruta requiere autenticación
+                        .anyRequest().authenticated())
 
-            // 4. Sin sesiones HTTP (usamos JWT)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+                // 4. Sin sesiones HTTP (usamos JWT)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // 5. Provider de autenticación (usa la BD)
-            .authenticationProvider(authenticationProvider())
+                // 5. Provider de autenticación (usa la BD)
+                .authenticationProvider(authenticationProvider())
 
-            // 6. Agregar el filtro JWT ANTES del filtro de usuario/password
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                // 6. Agregar el filtro JWT ANTES del filtro de usuario/password
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     // ========== PROVIDER DE AUTENTICACIÓN ==========
     @Bean
-public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-    provider.setPasswordEncoder(passwordEncoder);
-    return provider;
-}
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
+    }
 
     // ========== AUTHENTICATION MANAGER (para el login) ==========
     @Bean
@@ -90,17 +87,27 @@ public AuthenticationProvider authenticationProvider() {
     }
 
     // ========== CONFIGURACIÓN CORS ==========
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://frontend-5qvn.onrender.com"));
+
+        config.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", config);
+
         return source;
     }
+
 }
