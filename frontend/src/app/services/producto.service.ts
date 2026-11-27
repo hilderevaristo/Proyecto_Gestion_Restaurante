@@ -1,13 +1,11 @@
-
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Producto } from '../models/producto';
 
-@Injectable()
+@Service()
 export class ProductoService {
-  private http = inject(HttpClient);
-
+    private http = inject(HttpClient);
   private apiUrl = 'https://proyecto-gestion-restaurante.onrender.com/api/productos';
 
   listar(): Observable<Producto[]> {
