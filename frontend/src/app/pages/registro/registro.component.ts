@@ -170,65 +170,100 @@ export class RegistroComponent {
   }
 
   // ========== REGISTRAR ==========
-  registrar() {
-    this.error.set(null);
+  
+registrar() {
+  this.error.set(null);
 
-    // Validar todo
-    this.onNombreInput();
-    this.onEmailInput();
-    this.onTelefonoInput({ target: { value: this.telefono } });
-    this.onPasswordInput();
-    this.onPassword2Input();
+  this.onNombreInput();
+  this.onEmailInput();
+  this.onTelefonoInput({ target: { value: this.telefono } });
+  this.onPasswordInput();
+  this.onPassword2Input();
 
-    if (this.errorNombre() || this.errorEmail() || this.errorTelefono()
-      || this.errorPassword() || this.errorPassword2()) {
-      this.error.set('Corrige los errores antes de continuar');
-      return;
-    }
-
-    if (!this.nombre || !this.email || !this.telefono || !this.password) {
-      this.error.set('Completa todos los campos');
-      return;
-    }
-
-    if (this.password !== this.password2) {
-      this.error.set('Las contraseñas no coinciden');
-      return;
-    }
-
-    this.cargando.set(true);
-
-    const body = new HttpParams()
-      .set('nombre', this.nombre.trim())
-      .set('email', this.email.trim())
-      .set('telefono', this.telefono)
-      .set('password', this.password);
-
-    this.http.post<any>('/api/auth/registro', body.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).subscribe({
-      next: (res) => {
-        this.cargando.set(false);
-        if (res.success) {
-          Swal.fire({
-            icon: 'success',
-            title: '¡Cuenta creada!',
-            text: 'Ahora puedes iniciar sesión',
-            timer: 1800,
-            showConfirmButton: false
-          }).then(() => this.router.navigate(['/login']));
-        } else if (res.errorMsg === 'email_ya_registrado') {
-          this.error.set('Ese correo ya está registrado');
-        } else {
-          this.error.set('Error al registrar');
-        }
-      },
-      error: () => {
-        this.cargando.set(false);
-        this.error.set('Error de conexión');
-      }
-    });
+  if (
+    this.errorNombre() ||
+    this.errorEmail() ||
+    this.errorTelefono() ||
+    this.errorPassword() ||
+    this.errorPassword2()
+  ) {
+    this.error.set('Corrige los errores antes de continuar');
+    return;
   }
+
+  if (!this.nombre.trim() || !this.email.trim() ||
+      !this.telefono || !this.password || !this.password2) {
+    this.error.set('Completa todos los campos');
+    return;
+  }
+
+  if (this.password !== this.password2) {
+    this.error.set('Las contraseñas no coinciden');
+    return;
+  }
+
+  this.cargando.set(true);
+
+  const body = new HttpParams()
+    .set('nombre', this.nombre.trim())
+    .set('email', this.email.trim())
+    .set('telefono', this.telefono)
+    .set('password', this.password);
+
+  this.http.post<any>(
+    '/api/auth/registro',
+    body.toString(),
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    }
+  ).subscribe({
+    next: (res) => {
+      this.cargando.set(false);
+
+      if (!res || typeof res !== 'object') {
+        console.error('Respuesta inválida del servidor:', res);
+        this.error.set('El servidor devolvió una respuesta vacía');
+        return;
+      }
+
+      console.log('Respuesta del registro:', res);
+
+      if (res.success === true) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Cuenta creada!',
+          text: 'Ahora puedes iniciar sesión',
+          timer: 1800,
+          showConfirmButton: false
+        }).then(() => this.router.navigate(['/login']));
+
+      } else if (res.errorMsg === 'email_ya_registrado') {
+        this.error.set('Ese correo ya está registrado');
+      } else {
+        this.error.set(res.message || 'Error al registrar');
+      }
+    },
+
+    error: (err) => {
+      this.cargando.set(false);
+
+      console.error('Error HTTP en registro:', {
+        status: err.status,
+        message: err.message,
+        response: err.error
+      });
+
+      this.error.set(
+        err.status === 404
+          ? 'No se encontró la ruta de registro en el servidor'
+          : 'Error de conexión con el servidor'
+      );
+    }
+  });
+}
+
   // 👇 OJITO para contraseña
   mostrarPassword = signal(false);
   togglePassword() {

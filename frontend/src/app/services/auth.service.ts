@@ -1,29 +1,34 @@
-import { inject, Service, signal } from '@angular/core';
+
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
 import { Usuario } from '../models/usuario';
 import { CarritoService } from './carrito.service';
 
 interface LoginResponse {
     success: boolean;
-    token?: string;       // 👈 Token JWT
+    token?: string;
     nombre?: string;
     rol?: string;
     email?: string;
     id?: number;
     errorMsg?: string;
+    message?: string;
 }
 
-@Service()
+@Injectable({
+    providedIn: 'root'
+})
 export class AuthService {
     private http = inject(HttpClient);
-    private carrito = inject(CarritoService); 
+    private carrito = inject(CarritoService);
     private apiUrl = '/api/auth';
 
     usuarioActual = signal<Usuario | null>(this.cargarDeStorage());
 
-      constructor() {   // 👈 CAMBIO 2
+    constructor() {
         const usuario = this.usuarioActual();
+
         if (usuario) {
             this.carrito.cargarParaUsuario(usuario.id);
         }
@@ -35,19 +40,27 @@ export class AuthService {
             .set('email', email)
             .set('password', password);
 
-        return this.http.post<LoginResponse>(
+        return this.http.post<LoginResponse | null>(
             `${this.apiUrl}/login`,
             body.toString(),
             {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             }
         ).pipe(
+            map(res => {
+                if (!res || typeof res !== 'object') {
+                    throw new Error('El servidor devolvió una respuesta vacía');
+                }
+
+                return res;
+            }),
+
             tap(res => {
-                if (res.success && res.token) {
-                    // 👇 Guardar TOKEN
+                if (res.success === true && res.token) {
                     localStorage.setItem('token', res.token);
 
-                    // 👇 Guardar datos del usuario
                     const usuario: Usuario = {
                         id: res.id ?? 0,
                         nombre: res.nombre ?? '',
@@ -56,8 +69,13 @@ export class AuthService {
                         rol: res.rol ?? 'USER',
                         fechaRegistro: new Date().toISOString()
                     };
+
                     this.usuarioActual.set(usuario);
-                    localStorage.setItem('usuario', JSON.stringify(usuario));
+
+                    localStorage.setItem(
+                        'usuario',
+                        JSON.stringify(usuario)
+                    );
 
                     this.carrito.cargarParaUsuario(usuario.id);
                 }
@@ -71,15 +89,17 @@ export class AuthService {
             tap(() => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('usuario');
+
                 this.usuarioActual.set(null);
-                this.carrito.limpiar(); 
+                this.carrito.limpiar();
             })
         );
     }
 
     // ========== HELPERS ==========
     estaLogueado(): boolean {
-        return this.usuarioActual() !== null && this.getToken() !== null;
+        return this.usuarioActual() !== null &&
+            this.getToken() !== null;
     }
 
     esAdmin(): boolean {
@@ -92,7 +112,11 @@ export class AuthService {
     }
 
     private cargarDeStorage(): Usuario | null {
-        const data = localStorage.getItem('usuario');
-        return data ? JSON.parse(data) : null;
+        try {
+            const data = localStorage.getItem('usuario');
+            return data ? JSON.parse(data) : null;
+        } catch {
+            return null;
+        }
     }
 }
